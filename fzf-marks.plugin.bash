@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+sed=/usr/bin/sed
+
 command -v fzf >/dev/null 2>&1 || return
 
 if [[ -z ${FZF_MARKS_FILE-} ]] ; then
@@ -45,7 +47,7 @@ if [[ -z ${FZF_MARKS_COMMAND-} ]] ; then
 fi
 
 function _fzm_setup_completion {
-    complete -W "$(sed 's/\(.*\) : .*$/"\1"/' < "$FZF_MARKS_FILE")" fzm
+    complete -W "$($sed 's/\(.*\) : .*$/"\1"/' < "$FZF_MARKS_FILE")" fzm
 }
 
 function mark {
@@ -85,7 +87,7 @@ function _fzm_color_marks {
         c_lhs=${FZF_MARKS_COLOR_LHS:-39}
         c_rhs=${FZF_MARKS_COLOR_RHS:-36}
         c_colon=${FZF_MARKS_COLOR_COLON:-33}
-        sed "s/^\\(.*\\) : \\(.*\\)$/${esc}[${c_lhs}m\\1${esc}[0m ${esc}[${c_colon}m:${esc}[0m ${esc}[${c_rhs}m\\2${esc}[0m/"
+        $sed "s/^\\(.*\\) : \\(.*\\)$/${esc}[${c_lhs}m\\1${esc}[0m ${esc}[${c_colon}m:${esc}[0m ${esc}[${c_rhs}m\\2${esc}[0m/"
     fi
 }
 
@@ -107,7 +109,7 @@ function fzm {
     local key=$(head -1 <<< "$lines")
 
     if [[ $key == "$delete_key" ]]; then
-        dmark "-->-->-->" "$(sed 1d <<< "$lines")"
+        dmark "-->-->-->" "$($sed 1d <<< "$lines")"
     elif [[ $key == "$paste_key" || ! -t 1 ]]; then
         pmark "-->-->-->" "$(tail -1 <<< "$lines")"
     else
@@ -129,7 +131,7 @@ function jump {
             --tac)
     fi
     if [[ -n ${jumpline} ]]; then
-        jumpdir=$(sed 's/.*: \(.*\)$/\1/;'"s#^~#${HOME}#" <<< $jumpline)
+        jumpdir=$($sed 's/.*: \(.*\)$/\1/;'"s#^~#${HOME}#" <<< $jumpline)
         bookmarks=$(_fzm_handle_symlinks)
         cd "${jumpdir}" || return
         if [[ ! "${FZF_MARKS_KEEP_ORDER}" == 1 && -w ${FZF_MARKS_FILE} ]]; then
@@ -150,7 +152,7 @@ function pmark {
             --query='"$*"' --select-1 --tac)
     fi
     if [[ $selected ]]; then
-        selected=$(sed 's/.*: \(.*\)$/\1/;'"s#^~#${HOME}#" <<< $selected)
+        selected=$($sed 's/.*: \(.*\)$/\1/;'"s#^~#${HOME}#" <<< $selected)
         local paste_command=${FZF_MARKS_PASTE_COMMAND:-"printf '%s\n'"}
         eval -- "$paste_command \"\$selected\""
     fi
