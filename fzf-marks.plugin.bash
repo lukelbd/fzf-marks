@@ -47,7 +47,7 @@ if [[ -z ${FZF_MARKS_COMMAND-} ]] ; then
 fi
 
 function _fzm_setup_completion {
-    complete -W "$($sed 's/\(.*\) : .*$/"\1"/' < "$FZF_MARKS_FILE")" fzm
+    complete -W "$($sed 's/\(.*\) : .*$/"\1"/' < "$FZF_MARKS_FILE")" fzm jump drop mark pmark dmark
 }
 
 function mark {
@@ -166,7 +166,7 @@ function dmark {
         marks_to_delete=$(_fzm_color_marks < "${FZF_MARKS_FILE}" | eval ${FZF_MARKS_COMMAND} \
             -m --ansi \
             --bind=ctrl-y:accept,ctrl-t:toggle+down --header='"ctrl-y:delete, ctrl-t:toggle"' \
-            --query='"$*"' --tac)
+            --query='"$*"' --select-1 --tac)
     fi
     bookmarks=$(_fzm_handle_symlinks)
 
